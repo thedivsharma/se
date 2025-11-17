@@ -1,0 +1,186 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Woodman's World - Login / Register</title>
+
+    <!-- Theme initialization -->
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+        }
+    </script>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        #auth-page { background-color: #fafaf9; transition: background-color 0.3s; }
+        .dark #auth-page { background-color: #171717; }
+        .auth-card {
+            background-color: #fff;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+                        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .dark .auth-card {
+            background-color: #262626;
+            box-shadow: 0 10px 15px -3px rgba(255, 255, 255, 0.05);
+        }
+        .hidden-form { display: none; }
+    </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen">
+    <div id="auth-page" class="w-full min-h-screen flex items-center justify-center bg-stone-50 dark:bg-neutral-900 p-4">
+
+        <div class="auth-card w-full max-w-md p-8 rounded-2xl">
+            <h1 class="text-3xl font-bold text-center text-stone-800 dark:text-stone-50 mb-6">
+                Welcome to Woodman's World
+            </h1>
+
+            <p id="status-message" class="text-center p-3 rounded-lg mb-6 text-sm 
+                bg-amber-100 dark:bg-amber-800 dark:text-stone-50 text-stone-700">
+                Please log in or register.
+            </p>
+
+            <!-- Tabs -->
+            <div class="flex mb-6 border-b border-stone-200 dark:border-neutral-700">
+                <button id="login-tab" onclick="toggleForm('login')" 
+                    class="flex-1 py-3 text-lg font-semibold border-b-2 border-amber-600 
+                           text-amber-600 dark:text-amber-400 dark:border-amber-400 
+                           dark:hover:text-amber-300 hover:text-amber-700 transition duration-150">
+                    Login
+                </button>
+                <button id="register-tab" onclick="toggleForm('register')" 
+                    class="flex-1 py-3 text-lg font-semibold border-b-2 border-transparent 
+                           text-stone-500 dark:text-stone-400 dark:hover:text-amber-400 
+                           hover:text-stone-800 transition duration-150">
+                    Register
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" method="POST" action="{% url 'login_user' %}" class="space-y-4">
+                {% csrf_token %}
+                
+                <div>
+                    <label class="block text-sm font-medium text-stone-700 dark:text-stone-200">Email Address</label>
+                    <input type="email" id="login-email" name="login-email" required
+                        class="mt-1 block w-full px-3 py-2 border border-stone-300 
+                        dark:border-neutral-600 dark:bg-neutral-700 dark:text-stone-50 
+                        rounded-md shadow-sm focus:outline-none focus:ring-amber-500 
+                        focus:border-amber-500 sm:text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-stone-700 dark:text-stone-200">Password</label>
+                    <input type="password" id="login-password" name="login-password" required
+                        class="mt-1 block w-full px-3 py-2 border border-stone-300 
+                        dark:border-neutral-600 dark:bg-neutral-700 dark:text-stone-50 
+                        rounded-md shadow-sm focus:outline-none focus:ring-amber-500 
+                        focus:border-amber-500 sm:text-sm">
+                </div>
+
+                <button type="submit" 
+                    class="w-full flex justify-center py-2 px-4 border border-transparent 
+                           rounded-md shadow-sm text-sm font-medium text-white bg-amber-600 
+                           hover:bg-amber-700 focus:outline-none focus:ring-2 
+                           focus:ring-offset-2 focus:ring-amber-500 transition duration-150">
+                    Sign in
+                </button>
+            </form>
+
+            <!-- Register Form -->
+<form id="register-form" method="POST" action="{% url 'register_user' %}" class="space-y-4 hidden-form">
+    {% csrf_token %}
+
+    <div>
+        <label class="block text-sm font-medium text-stone-700 dark:text-stone-200">Full Name</label>
+        <input type="text" id="register-fullname" name="register-fullname" required
+            class="mt-1 block w-full px-3 py-2 border border-stone-300 
+            dark:border-neutral-600 dark:bg-neutral-700 dark:text-stone-50 
+            rounded-md shadow-sm">
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-stone-700 dark:text-stone-200">Registering As</label>
+        <select id="register-role" name="register-role" required
+            class="mt-1 block w-full px-3 py-2 border border-stone-300 
+            dark:border-neutral-600 dark:bg-neutral-700 dark:text-stone-50 
+            rounded-md shadow-sm">
+            <option value="" disabled selected>Select Role</option>
+            <option value="artisan">Artisan</option>
+            <option value="buyer">Buyer</option>
+        </select>
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-stone-700 dark:text-stone-200">Email Address</label>
+        <input type="email" id="register-email" name="register-email" required
+            class="mt-1 block w-full px-3 py-2 border border-stone-300 
+            dark:border-neutral-600 dark:bg-neutral-700 dark:text-stone-50 
+            rounded-md shadow-sm">
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-stone-700 dark:text-stone-200">Password (Min 8 chars)</label>
+        <input type="password" id="register-password" name="register-password" minlength="8" required
+            class="mt-1 block w-full px-3 py-2 border border-stone-300 
+            dark:border-neutral-600 dark:bg-neutral-700 dark:text-stone-50 
+            rounded-md shadow-sm">
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-stone-700 dark:text-stone-200">Confirm Password</label>
+        <input type="password" id="register-confirm-password" name="register-confirm-password" minlength="8" required
+            class="mt-1 block w-full px-3 py-2 border border-stone-300 
+            dark:border-neutral-600 dark:bg-neutral-700 dark:text-stone-50 
+            rounded-md shadow-sm">
+    </div>
+
+    <button type="submit"
+        class="w-full flex justify-center py-2 px-4 border border-transparent 
+        rounded-md shadow-sm text-sm font-medium text-white bg-amber-600 
+        hover:bg-amber-700">
+        Create Account
+    </button>
+</form>
+
+
+                       
+        </div>
+    </div>
+
+<script>
+function toggleForm(formName) {
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const loginTab = document.getElementById('login-tab');
+    const registerTab = document.getElementById('register-tab');
+
+    if (formName === 'login') {
+        loginForm.classList.remove('hidden-form');
+        registerForm.classList.add('hidden-form');
+        loginTab.classList.add('border-amber-600', 'text-amber-600');
+        registerTab.classList.remove('border-amber-600', 'text-amber-600');
+    } else {
+        loginForm.classList.add('hidden-form');
+        registerForm.classList.remove('hidden-form');
+        registerTab.classList.add('border-amber-600', 'text-amber-600');
+        loginTab.classList.remove('border-amber-600', 'text-amber-600');
+    }
+}
+
+window.onload = () => {
+    toggleForm('login');
+};
+</script>
+
+</body>
+</html>

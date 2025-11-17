@@ -1,0 +1,391 @@
+{% load static %}
+{% load humanize %}
+
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Woodman's World</title>
+
+    <!-- Theme initialization -->
+    <script>
+        if (localStorage.theme === 'dark' ||
+            (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+        }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .bg-page { background-color: #fafaf9; transition: background-color 0.3s; }
+        .dark .bg-page { background-color: #171717; }
+        .step-indicator { transition: all 0.3s ease-in-out; }
+        .active-step .step-indicator { background-color: #d97706; border-color: #d97706; color: white; }
+        .step-content.hidden { display: none; }
+        .input-field {
+            width: 100%; padding: 0.5rem 1rem;
+            border: 1px solid #d6d3d1; border-radius: 0.5rem;
+            background-color: white; color: black;
+        }
+        .dark .input-field { background-color: #262626; color: white; border-color: #555; }
+    </style>
+</head>
+
+<body class="bg-page">
+
+<header class="bg-white dark:bg-neutral-800 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <a href="{% url 'home' %}" class="text-2xl font-bold text-stone-800 dark:text-stone-50">
+            Woodman's World
+        </a>
+        <span class="text-lg text-stone-600 dark:text-stone-300">Secure Checkout</span>
+    </div>
+</header>
+
+<main class="max-w-7xl mx-auto py-8 px-4">
+    <h1 class="text-3xl font-extrabold text-stone-800 dark:text-stone-100 mb-8">Order Checkout</h1>
+
+    <!-- Progress bar -->
+    <div class="flex justify-between items-center mb-10 max-w-2xl mx-auto">
+        <div id="step-1-status" class="flex flex-col items-center active-step w-1/3">
+            <div class="step-indicator w-8 h-8 rounded-full border-2 border-amber-600 bg-amber-600 text-white flex items-center justify-center">1</div>
+            <span class="text-xs mt-2">Shipping</span>
+        </div>
+        <div id="progress-line-1" class="h-0.5 bg-stone-300 flex-1 -mx-4"></div>
+
+        <div id="step-2-status" class="flex flex-col items-center w-1/3">
+            <div class="step-indicator w-8 h-8 rounded-full border-2 border-stone-300 bg-white dark:bg-neutral-700 dark:border-neutral-600 flex items-center justify-center">2</div>
+            <span class="text-xs mt-2">Payment</span>
+        </div>
+        <div id="progress-line-2" class="h-0.5 bg-stone-300 flex-1 -mx-4"></div>
+
+        <div id="step-3-status" class="flex flex-col items-center w-1/3">
+            <div class="step-indicator w-8 h-8 rounded-full border-2 border-stone-300 bg-white dark:bg-neutral-700 flex items-center justify-center">3</div>
+            <span class="text-xs mt-2">Review & Place</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- LEFT COLUMN -->
+        <div class="lg:col-span-2 bg-white dark:bg-neutral-800 p-6 rounded-xl shadow-lg">
+
+            <!-- STEP 1 -->
+            <div id="step-1" class="step-content">
+                <h2 class="text-2xl font-semibold mb-6">1. Shipping Information</h2>
+
+                <form id="shipping-form" onsubmit="event.preventDefault(); nextStep();">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label>First Name</label>
+                            <input type="text" id="firstName" class="input-field" value="{{ user.first_name }}" required>
+                        </div>
+                        <div>
+                            <label>Last Name</label>
+                            <input type="text" id="lastName" class="input-field" value="{{ user.last_name }}" required>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label>Address</label>
+                        <input type="text" id="address" class="input-field" required>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <div>
+                            <label>City</label>
+                            <input type="text" id="city" class="input-field" required>
+                        </div>
+                        <div>
+                            <label>State</label>
+                            <input type="text" id="state" class="input-field" required>
+                        </div>
+                        <div>
+                            <label>ZIP</label>
+                            <input type="text" id="zip" class="input-field" required>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-semibold mt-6">Shipping Method</h3>
+
+                    <label class="flex items-center space-x-3 p-3 border rounded-lg mt-3 border-amber-500 bg-amber-50">
+                        <input type="radio" name="shippingMethod" value="standard" checked>
+                        <span class="flex-1">Standard Shipping (5–7 days)</span>
+                        <span>$5.00</span>
+                    </label>
+
+                    <label class="flex items-center space-x-3 p-3 border rounded-lg mt-2">
+                        <input type="radio" name="shippingMethod" value="express">
+                        <span class="flex-1">Express Shipping (1–2 days)</span>
+                        <span>$15.00</span>
+                    </label>
+
+                    <button type="submit" class="mt-6 bg-amber-600 text-white py-3 px-8 rounded-full">
+                        Continue to Payment
+                    </button>
+                </form>
+            </div>
+
+            <!-- STEP 2 -->
+            <div id="step-2" class="step-content hidden">
+                <h2 class="text-2xl font-semibold mb-6">2. Payment Details</h2>
+
+                <form id="payment-form" onsubmit="event.preventDefault(); nextStep();">
+                    <label>Card Number</label>
+                    <input type="text" id="cardNumber" class="input-field" required>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <div>
+                            <label>Expiry</label>
+                            <input type="text" id="expiry" class="input-field" required>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label>CVV</label>
+                            <input type="text" id="cvv" class="input-field" required>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label>Name on Card</label>
+                        <input type="text" id="cardName" class="input-field" required>
+                    </div>
+
+                    <div class="flex justify-between mt-8">
+                        <button type="button" onclick="prevStep()">← Back</button>
+                        <button type="submit" class="bg-amber-600 text-white py-3 px-8 rounded-full">Continue</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- STEP 3 -->
+            <div id="step-3" class="step-content hidden">
+                <h2 class="text-2xl font-semibold mb-6">3. Review and Place Order</h2>
+
+                <div class="space-y-4">
+                    <div class="border p-4 rounded-lg">
+                        <h3 class="font-semibold mb-2">Shipping To</h3>
+                        <p id="review-shipping-address"></p>
+                    </div>
+
+                    <div class="border p-4 rounded-lg">
+                        <h3 class="font-semibold mb-2">Payment Method</h3>
+                        <p id="review-payment-method"></p>
+                    </div>
+
+                    <div class="border p-4 rounded-lg">
+                        <h3 class="font-semibold mb-2">Items</h3>
+                        <ul id="review-item-list" class="space-y-2"></ul>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-8">
+                    <button onclick="prevStep()">← Back</button>
+
+                    <form action="{% url 'place_order' %}" method="POST">
+    {% csrf_token %}
+    <button type="submit"
+        class="bg-green-600 text-white py-3 px-8 rounded-full">
+        Place Order & Pay <span id="final-total">${{ total|floatformat:2 }}</span>
+    </button>
+</form>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-neutral-800 p-6 rounded-xl shadow-lg sticky top-20">
+                <h2 class="text-xl font-bold mb-4">Order Summary</h2>
+
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span>Subtotal:</span>
+                        <span id="subtotal-amount">${{ subtotal|floatformat:2 }}</span>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <span>Shipping:</span>
+                        <span id="shipping-amount">$5.00</span>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <span>Tax:</span>
+                        <span id="tax-amount">$0.00</span>
+                    </div>
+
+                    <div class="flex justify-between font-bold text-lg pt-4 border-t">
+                        <span>Total:</span>
+                        <span id="total-amount">${{ total|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</main>
+
+<footer class="bg-neutral-900 p-6 text-center text-stone-300 text-sm">
+    © 2025 Woodman's World
+</footer>
+
+
+<!-- LOAD ITEMS JSON -->
+{{ items_json|json_script:"items-data" }}
+
+<script>
+/* ----------------------------------------------------
+   Load items from Django JSON
+---------------------------------------------------- */
+let itemsFromServer = [];
+
+window.addEventListener("DOMContentLoaded", () => {
+    const dataEl = document.getElementById("items-data");
+    try {
+        itemsFromServer = JSON.parse(dataEl.textContent);
+    } catch {
+        itemsFromServer = [];
+    }
+
+    calculateTotals();
+    updateSteps();
+});
+
+/* ----------------------------------------------------
+   Totals Calculation
+---------------------------------------------------- */
+let shippingCost = 5.00;
+const TAX = 0.05;
+
+function computeSubtotal() {
+    return itemsFromServer.reduce((a, it) => a + (it.price * it.quantity), 0);
+}
+
+function calculateTotals() {
+    const subtotal = computeSubtotal();
+    const tax = subtotal * TAX;
+    const total = subtotal + tax + shippingCost;
+
+    document.getElementById("subtotal-amount").textContent = `$${subtotal.toFixed(2)}`;
+    document.getElementById("tax-amount").textContent = `$${tax.toFixed(2)}`;
+    document.getElementById("shipping-amount").textContent = `$${shippingCost.toFixed(2)}`;
+    document.getElementById("total-amount").textContent = `$${total.toFixed(2)}`;
+
+    const finalTotal = document.getElementById("final-total");
+    if (finalTotal) finalTotal.textContent = `$${total.toFixed(2)}`;
+}
+
+/* ----------------------------------------------------
+   Step Navigation
+---------------------------------------------------- */
+let currentStep = 1;
+
+function updateSteps() {
+    for (let i = 1; i <= 3; i++) {
+        document.getElementById(`step-${i}`).classList.add("hidden");
+        document.getElementById(`step-${i}-status`).classList.remove("active-step");
+    }
+    document.getElementById(`step-${currentStep}`).classList.remove("hidden");
+    document.getElementById(`step-${currentStep}-status`).classList.add("active-step");
+
+    if (currentStep === 3) populateReview();
+}
+
+window.nextStep = function () {
+    if (currentStep === 1 && !document.getElementById("shipping-form").checkValidity()) {
+        document.getElementById("shipping-form").reportValidity();
+        return;
+    }
+    if (currentStep === 2 && !document.getElementById("payment-form").checkValidity()) {
+        document.getElementById("payment-form").reportValidity();
+        return;
+    }
+    currentStep++;
+    updateSteps();
+};
+
+window.prevStep = function () {
+    currentStep--;
+    updateSteps();
+};
+
+function populateReview() {
+    // Shipping Summary
+    const first = document.getElementById("firstName").value;
+    const last = document.getElementById("lastName").value;
+    const addr = document.getElementById("address").value;
+    const city = document.getElementById("city").value;
+    const st = document.getElementById("state").value;
+    const zip = document.getElementById("zip").value;
+    const ship = document.querySelector('input[name="shippingMethod"]:checked').value;
+
+    document.getElementById("review-shipping-address").innerHTML =
+        `${first} ${last}<br>${addr}<br>${city}, ${st} ${zip}<br>${ship} shipping`;
+
+    // Payment
+    const card = document.getElementById("cardNumber").value;
+    const name = document.getElementById("cardName").value;
+    const last4 = card.slice(-4);
+
+    document.getElementById("review-payment-method").innerText =
+        `Card ending in **** ${last4} (${name})`;
+
+    // Items
+    document.getElementById("review-item-list").innerHTML =
+        itemsFromServer.map(it =>
+            `<li class="flex justify-between">
+                <span>${it.name} × ${it.quantity}</span>
+                <span>$${(it.price * it.quantity).toFixed(2)}</span>
+            </li>`
+        ).join("");
+}
+
+/* ----------------------------------------------------
+   PLACE ORDER  
+---------------------------------------------------- */
+function getCookie(name) {
+    let cookieValue = null;
+    document.cookie.split(";").forEach(c => {
+        const [k, v] = c.trim().split("=");
+        if (k === name) cookieValue = v;
+    });
+    return cookieValue;
+}
+
+window.placeOrder = function () {
+    const formData = new FormData();
+
+    formData.append("shipping_address",
+        `${document.getElementById("address").value}, ` +
+        `${document.getElementById("city").value}, ` +
+        `${document.getElementById("state").value} ` +
+        `${document.getElementById("zip").value}`
+    );
+
+    formData.append("user_name",
+        `${document.getElementById("firstName").value} ` +
+        `${document.getElementById("lastName").value}`
+    );
+
+    fetch("{% url 'place_order' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: formData
+    })
+    .catch(() => alert("Could not place order."));
+};
+</script>
+
+</body>
+</html>

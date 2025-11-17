@@ -1,0 +1,18 @@
+[run]
+branch = True
+source =
+    .
+omit =
+    */migrations/*
+    manage.py
+    website/asgi.py
+    website/wsgi.py
+    website/settings.py
+
+[report]
+skip_empty = True
+show_missing = True
+exclude_lines =
+    pragma: no cover
+    if TYPE_CHECKING:
+    if __name__ == "__main__":

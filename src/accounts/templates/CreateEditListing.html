@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create/Edit Listing - Woodman's World</title>
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark'); document.documentElement.classList.remove('light');
+        } else { document.documentElement.classList.remove('dark'); document.documentElement.classList.add('light'); }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        #app { background-color: #fafaf9; transition: background-color .3s; }
+        .dark #app { background-color: #171717; }
+        .icon-btn { transition: transform .2s, color .2s; }
+        .icon-btn:hover { transform: scale(1.05); color: #d97706; }
+    </style>
+</head>
+<body id="app">
+    <!-- Header (same as HomePage without search/categories) -->
+    <header class="sticky top-0 z-50 bg-white dark:bg-neutral-800 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="HomePage.html" class="text-2xl font-bold text-stone-800 dark:text-stone-50 flex items-center">
+                    <span class="hidden sm:inline">Woodman's World</span>
+                    <span class="sm:hidden">Woodman's</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleTheme()" class="p-2 text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 icon-btn rounded-full">
+                        <svg id="theme-toggle-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"></svg>
+                    </button>
+                    <a href="LoginRegister.html" class="hidden md:flex items-center text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 icon-btn">
+                        <svg class="w-6 h-6 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        <span class="text-sm font-medium">Account / Login</span>
+                    </a>
+                    <a href="ShoppingCart.html" class="relative p-2 text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 icon-btn rounded-full">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                        <span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">4</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto py-8 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-extrabold text-stone-800 dark:text-stone-100 mb-6">Create / Edit Listing</h1>
+
+        <div class="bg-white dark:bg-neutral-800 rounded-xl shadow-lg p-6 space-y-6">
+            <form id="listing-form" class="space-y-5" onsubmit="event.preventDefault();">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">Title</label>
+                        <input id="title" type="text" class="w-full border border-stone-300 dark:border-neutral-600 dark:bg-neutral-700 dark:text-stone-50 rounded-lg px-3 py-2 focus:ring-amber-500 focus:border-amber-500" placeholder="e.g., Hand-Carved Walnut Bowl">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">Base Price ($)</label>
+                        <input id="price" type="number" min="0" step="0.01" class="w-full border border-stone-300 dark:border-neutral-600 dark:bg-neutral-700 dark:text-stone-50 rounded-lg px-3 py-2 focus:ring-amber-500 focus:border-amber-500" placeholder="59.99">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">Description</label>
+                    <textarea id="description" rows="4" class="w-full border border-stone-300 dark:border-neutral-600 dark:bg-neutral-700 dark:text-stone-50 rounded-lg px-3 py-2 focus:ring-amber-500 focus:border-amber-500" placeholder="Describe your product..."></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">Variants</label>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-stone-200 dark:divide-neutral-700">
+                            <thead class="bg-stone-100 dark:bg-neutral-900">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider">Size</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider">Color</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider">SKU</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider">Stock</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider">Price Δ ($)</th>
+                                    <th class="px-3 py-2"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="variants-tbody" class="divide-y divide-stone-100 dark:divide-neutral-700 text-sm">
+                                <!-- rows injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pt-3">
+                        <button type="button" onclick="addVariant()" class="px-3 py-2 rounded-lg bg-amber-600 text-white text-sm font-semibold hover:bg-amber-700">+ Add Variant</button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="space-x-2">
+                        <button type="button" onclick="saveListing('draft')" class="px-4 py-2 rounded-lg border border-stone-300 dark:border-neutral-600 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-neutral-800">Save Draft</button>
+                        <button type="button" onclick="saveListing('publish')" class="px-4 py-2 rounded-lg bg-amber-600 text-white font-semibold hover:bg-amber-700">Publish</button>
+                    </div>
+                    <a href="ArtisanDashboard.html#listings" class="text-sm text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400">Back to Dashboard</a>
+                </div>
+            </form>
+
+            <p id="status" class="text-sm"></p>
+        </div>
+    </main>
+
+    <footer class="bg-neutral-800 dark:bg-neutral-900 mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-stone-300 text-center text-sm">
+            <p>&copy; 2025 Woodman's World. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle
+        window.toggleTheme = function() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) { html.classList.remove('dark'); html.classList.add('light'); localStorage.theme='light'; }
+            else { html.classList.add('dark'); html.classList.remove('light'); localStorage.theme='dark'; }
+            updateThemeIcon();
+        }
+        window.updateThemeIcon = function() {
+            const ic = document.getElementById('theme-toggle-icon');
+            const isDark = document.documentElement.classList.contains('dark');
+            if (ic) ic.innerHTML = isDark
+                ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>'
+                : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>';
+        }
+
+        // Helpers
+        function getParam(name) {
+            const url = new URL(window.location.href);
+            return url.searchParams.get(name);
+        }
+
+        // Mock existing product for edit flow
+        const MOCK_PRODUCTS = {
+            p1: {
+                title: 'Hand-Carved Walnut Bowl',
+                description: 'A timeless centerpiece for fruit or display.',
+                price: 59.99,
+                variants: [
+                    { size: 'S', color: 'Brown', sku: 'WLNTBWL-S-BRN', stock: 8, priceDelta: 0 },
+                    { size: 'M', color: 'Brown', sku: 'WLNTBWL-M-BRN', stock: 5, priceDelta: 10 },
+                ]
+            }
+        };
+
+        let variants = [];
+
+        function addVariant(v = { size: '', color: '', sku: '', stock: 0, priceDelta: 0 }) {
+            variants.push(v);
+            renderVariants();
+            updatePreview();
+        }
+
+        function removeVariant(idx) {
+            variants.splice(idx, 1);
+            renderVariants();
+            updatePreview();
+        }
+
+        function renderVariants() {
+            const tbody = document.getElementById('variants-tbody');
+            tbody.innerHTML = variants.map((v, i) => `
+                <tr class="bg-white dark:bg-neutral-800">
+                    <td class="px-3 py-2"><input value="${v.size}" oninput="onVarChange(${i}, 'size', this.value)" class="w-full border border-stone-300 dark:border-neutral-600 dark:bg-neutral-700 dark:text-stone-50 rounded-lg px-2 py-1"/></td>
+                    <td class="px-3 py-2"><input value="${v.color}" oninput="onVarChange(${i}, 'color', this.value)" class="w-full border border-stone-300 dark:border-neutral-600 dark:bg-neutral-700 dark:text-stone-50 rounded-lg px-2 py-1"/></td>
+                    <td class="px-3 py-2"><input value="${v.sku}" oninput="onVarChange(${i}, 'sku', this.value)" class="w-full border border-stone-300 dark:border-neutral-600 dark:bg-neutral-700 dark:text-stone-50 rounded-lg px-2 py-1"/></td>
+                    <td class="px-3 py-2"><input type="number" min="0" value="${v.stock}" oninput="onVarChange(${i}, 'stock', +this.value)" class="w-24 border border-stone-300 dark:border-neutral-600 dark:bg-neutral-700 dark:text-stone-50 rounded-lg px-2 py-1"/></td>
+                    <td class="px-3 py-2"><input type="number" step="0.01" value="${v.priceDelta}" oninput="onVarChange(${i}, 'priceDelta', +this.value)" class="w-28 border border-stone-300 dark:border-neutral-600 dark:bg-neutral-700 dark:text-stone-50 rounded-lg px-2 py-1"/></td>
+                    <td class="px-3 py-2 text-right"><button type="button" onclick="removeVariant(${i})" class="text-red-600 hover:text-red-800">Remove</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function onVarChange(idx, key, val) {
+            variants[idx][key] = val;
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const data = collectData();
+            const prev = document.getElementById('preview');
+            if (prev) prev.textContent = JSON.stringify(data, null, 2);
+        }
+
+        function collectData() {
+            return {
+                title: document.getElementById('title').value.trim(),
+                description: document.getElementById('description').value.trim(),
+                price: Number(document.getElementById('price').value || 0),
+                variants
+            };
+        }
+
+        function saveListing(mode) {
+            const status = document.getElementById('status');
+            const data = collectData();
+            if (!data.title || data.price <= 0) {
+                status.textContent = 'Please provide a valid title and base price.';
+                status.className = 'text-sm text-red-600';
+                return;
+            }
+            // Mock save/publish
+            status.textContent = mode === 'publish' ? 'Listing published successfully (mock).' : 'Draft saved (mock).';
+            status.className = 'text-sm text-green-600';
+        }
+
+        function init() {
+            const productId = getParam('productId');
+            updateThemeIcon();
+            if (productId && MOCK_PRODUCTS[productId]) {
+                const p = MOCK_PRODUCTS[productId];
+                document.getElementById('title').value = p.title;
+                document.getElementById('description').value = p.description;
+                document.getElementById('price').value = p.price;
+                variants = [...p.variants];
+            } else {
+                variants = [{ size: 'S', color: 'Brown', sku: '', stock: 0, priceDelta: 0 }];
+            }
+            renderVariants();
+            updatePreview();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

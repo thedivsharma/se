@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artisan Dashboard - Woodman's World</title>
+    <!-- Theme initialization script (prevents FOUC) -->    
+    <script>
+        // Check for theme preference in local storage or system preference
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+        }
+    </script>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        #app {
+            background-color: #fafaf9; /* stone-50 */
+            color: #000;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark #app {
+            background-color: #171717; /* neutral-900 */
+            color: #fff;
+        }
+
+        /* Replaced Tailwind @apply with vanilla CSS so it works with CDN build */
+        .dashboard-card {
+            padding: 1.25rem;               /* p-5 */
+            border-radius: 0.75rem;         /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); /* shadow-lg */
+            border: 1px solid #d6d3d1;      /* stone-300 */
+            background-color: #fff;
+            color: #000;
+        }
+        .dark .dashboard-card {
+            background-color: #262626; /* neutral-800 */
+            border-color: #404040;
+            color: #fff;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.625rem 1rem;        /* px-4 py-2.5 */
+            border-radius: 0.5rem;         /* rounded-lg */
+            font-weight: 500;              /* font-medium */
+            transition: background-color .15s ease, color .15s ease;
+            background-color: transparent;
+            color: #000 !important;
+        }
+        .dark .sidebar-link { color: #fff !important; }
+        .sidebar-link:hover {
+            background-color: #facc15; /* amber-400 */
+            color: #000 !important;
+        }
+        .dark .sidebar-link:hover {
+            background-color: #404040;
+            color: #fff !important;
+        }
+        .sidebar-link.active {
+            background-color: #d97706 !important; /* amber-600 */
+            color: #fff !important;
+            box-shadow: 0 0 6px rgba(0,0,0,0.4);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.5rem 1rem;          /* px-4 py-2 */
+            border-radius: 0.5rem;
+            border: 1px solid #a8a29e;     /* stone-400 */
+            background-color: #fff;
+            color: #000;
+            transition: box-shadow .15s ease, border-color .15s ease;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #d97706;
+            box-shadow: 0 0 0 2px #facc15;
+        }
+        .dark .input-field {
+            border-color: #525252;
+            background-color: #262626;
+            color: #fff;
+        }
+        .dark .input-field:focus {
+            border-color: #fbbf24;
+            box-shadow: 0 0 0 2px #d97706;
+        }
+
+        /* Headings */
+        h1, h2, h3, h4, h5, h6 { color: #000; }
+        .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 { color: #fff; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; }
+        thead { background-color: #f5f5f4; color: #000; }
+        .dark thead { background-color: #262626; color: #fff; }
+        tbody { background-color: #fff; color: #000; }
+        .dark tbody { background-color: #171717; color: #fff; }
+        tr { border-bottom: 1px solid #e7e5e4; }
+        .dark tr { border-bottom: 1px solid #404040; }
+
+        /* Buttons */
+        button { transition: background-color .2s, color .2s, transform .2s; }
+        button:hover { transform: scale(1.03); }
+        .btn-primary {
+            background-color: #d97706; color: #fff; font-weight: 600;
+            padding: 0.5rem 1rem; border-radius: 0.5rem;
+        }
+        .btn-primary:hover { background-color: #b45309; }
+
+        /* Header + Footer colors follow HomePage */
+        header { background-color: #fff; color: #000; }
+        .dark header { background-color: #171717; color: #fff; }
+        footer { background-color: #262626; color: #fff; }
+        .dark footer { background-color: #000; color: #fff; }
+
+        .icon-btn { transition: transform .2s, color .2s; }
+        .icon-btn:hover { transform: scale(1.05); color: #d97706; }
+
+        /* Helper for unknown class used in rows */
+        .dark-text-default { color: inherit; }
+    </style>
+
+</head>
+<body id="app" class="min-h-screen">
+
+    <!-- Header: identical to HomePage -->
+    <header class="sticky top-0 z-50 bg-white dark:bg-neutral-800 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="HomePage.html" class="text-2xl font-bold text-stone-800 dark:text-stone-50 flex items-center">
+                    <span class="hidden sm:inline">Woodman's World</span>
+                    <span class="sm:hidden">Woodman's</span>
+                </a>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleTheme()" class="p-2 text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 icon-btn rounded-full">
+                        <svg id="theme-toggle-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"></svg>
+                    </button>
+                    <a href="LoginRegister.html" class="flex items-center text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 icon-btn hidden md:flex">
+                        <svg class="w-6 h-6 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        <span class="text-sm font-medium">Account / Login</span>
+                    </a>
+                    <a href="ShoppingCart.html" class="relative p-2 text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 icon-btn rounded-full">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
+                        <span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full" id="cart-count">4</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Layout -->
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+            <!-- Sidebar -->
+            <aside class="lg:col-span-3 mb-6 lg:mb-0">
+                <nav class="dashboard-card">
+                    <h3 class="text-lg font-bold text-stone-800 dark:text-stone-50 mb-4 border-b border-stone-200 dark:border-neutral-700 pb-2">Seller Menu</h3>
+                    <ul class="space-y-1">
+                        <li><a href="#dashboard" class="sidebar-link active" data-section="dashboard">Dashboard Overview</a></li>
+                        <li><a href="#listings" class="sidebar-link" data-section="listings">Listings (HCM-F-010)</a></li>
+                        <li><a href="#inventory" class="sidebar-link" data-section="inventory">Inventory (HCM-F-020)</a></li>
+                        <li><a href="#orders" class="sidebar-link" data-section="orders">Orders (HCM-F-040)</a></li>
+                        <li><a href="#payouts" class="sidebar-link" data-section="payouts">Payouts</a></li>
+                        <li><a href="#reports" class="sidebar-link" data-section="reports">Reports (HCM-F-060)</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <div id="dashboard-content" class="lg:col-span-9 space-y-8">
+                <!-- Content injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-neutral-800 dark:bg-neutral-900 mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-stone-300 text-center text-sm">
+            <p>&copy; 2025 Woodman's World. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Frontend JavaScript -->
+    <script>
+        // Same theme toggle helpers as HomePage
+        window.toggleTheme = function() {
+            const htmlElement = document.documentElement;
+            const isDark = htmlElement.classList.contains('dark');
+            if (isDark) {
+                htmlElement.classList.remove('dark');
+                htmlElement.classList.add('light');
+                localStorage.theme = 'light';
+            } else {
+                htmlElement.classList.add('dark');
+                htmlElement.classList.remove('light');
+                localStorage.theme = 'dark';
+            }
+            updateThemeIcon();
+        }
+        window.updateThemeIcon = function() {
+            const themeIcon = document.getElementById('theme-toggle-icon');
+            const isDark = document.documentElement.classList.contains('dark');
+            if (themeIcon) {
+                themeIcon.innerHTML = isDark
+                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>'
+                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>';
+            }
+        }
+
+        // Inventory mock
+        window.mockInventoryUpdate = function() {
+            const sku = document.getElementById('product_sku')?.value;
+            const change = document.getElementById('stock_change')?.value;
+            const price = document.getElementById('new_price')?.value;
+            const statusElement = document.getElementById('update-status');
+
+            if (!sku || !change) {
+                if (statusElement) {
+                    statusElement.textContent = "Please enter SKU and stock change.";
+                    statusElement.classList.remove('hidden', 'text-green-600');
+                    statusElement.classList.add('text-red-600');
+                }
+                return;
+            }
+
+            if (statusElement) {
+                statusElement.textContent = `SUCCESS: Updated SKU ${sku} by ${change}. ${price ? 'New price: $' + price : ''}`;
+                statusElement.classList.remove('hidden', 'text-red-600');
+                statusElement.classList.add('text-green-600');
+            }
+
+            const skuEl = document.getElementById('product_sku');
+            const changeEl = document.getElementById('stock_change');
+            const priceEl = document.getElementById('new_price');
+            if (skuEl) skuEl.value = '';
+            if (changeEl) changeEl.value = '1';
+            if (priceEl) priceEl.value = '';
+        }
+
+        // Pages
+        const pages = {
+            dashboard: `
+                <h1 class="text-3xl font-extrabold text-stone-800 dark:text-stone-100 mb-6 border-l-4 border-amber-600 pl-3">Dashboard Overview</h1>
+                <div class="dashboard-card text-center">
+    <p class="text-sm text-stone-600 dark:text-stone-400 uppercase tracking-wider">Total Sales</p>
+    <p class="text-4xl font-bold text-stone-800 dark:text-stone-50 mt-1">
+        ₹{{ total_sales }}
+    </p>
+</div>
+
+                    <div class="dashboard-card text-center">
+                        <p class="text-sm text-stone-600 dark:text-stone-400 uppercase tracking-wider">Total Orders</p>
+                        <p class="text-4xl font-bold text-stone-800 dark:text-stone-50 mt-1">28</p>
+                        <p class="text-xs text-stone-500 dark:text-stone-400 mt-1">5 pending fulfillment</p>
+                    </div>
+                    <div class="dashboard-card text-center">
+                        <p class="text-sm text-stone-600 dark:text-stone-400 uppercase tracking-wider">Low Stock Items</p>
+                        <p class="text-4xl font-bold text-red-600 mt-1">3</p>
+                        <p class="text-xs text-red-600 mt-1">Action required</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3 class="text-xl font-semibold text-stone-800 dark:text-stone-50 mb-4 border-b border-stone-200 dark:border-neutral-700 pb-2">Quick Inventory Update (HCM-F-020 Mock)</h3>
+                    <form onsubmit="event.preventDefault(); mockInventoryUpdate();" class="space-y-4">
+                        <div>
+                            <label for="product_sku" class="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">Product SKU / Name</label>
+                            <input type="text" id="product_sku" placeholder="e.g., WLNT-BOWL-LG" required class="input-field">
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="stock_change" class="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">Stock Change (+ or -)</label>
+                                <input type="number" id="stock_change" value="1" required class="input-field">
+                            </div>
+                            <div>
+                                <label for="new_price" class="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">New Price (Optional)</label>
+                                <input type="number" id="new_price" placeholder="$" step="0.01" class="input-field">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-amber-600 text-white font-semibold py-2 rounded-lg hover:bg-amber-700 transition duration-150 shadow-md">
+                            Apply Inventory Change
+                        </button>
+                        <p id="update-status" class="text-center text-sm font-medium pt-2 hidden"></p>
+                    </form>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3 class="text-xl font-semibold text-stone-800 dark:text-stone-50 mb-4 border-b border-stone-200 dark:border-neutral-700 pb-2">Orders Pending Fulfillment</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-stone-200 dark:divide-neutral-700">
+                            <thead>
+                                <tr>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider">Order ID</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider">Items</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider">Total</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider">Status</th>
+                                    <th class="px-3 py-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-neutral-800 divide-y divide-stone-100 dark:divide-neutral-700 text-sm">
+                                <tr>
+                                    <td class="px-3 py-4 whitespace-nowrap font-semibold text-amber-700 dark:text-amber-500">#WW-2025-1015</td>
+                                    <td class="px-3 py-4 whitespace-nowrap dark-text-default">Walnut Bowl, Mug Set</td>
+                                    <td class="px-3 py-4 whitespace-nowrap dark-text-default">$95.49</td>
+                                    <td class="px-3 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Confirmed</span></td>
+                                    <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <a href="Fulfillment.html?orderId=WW-2025-1015" class="text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200">Fulfill</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-3 py-4 whitespace-nowrap font-semibold text-amber-700 dark:text-amber-500">#WW-2025-1014</td>
+                                    <td class="px-3 py-4 whitespace-nowrap dark-text-default">Leaf Earrings</td>
+                                    <td class="px-3 py-4 whitespace-nowrap dark-text-default
+                                    <td class="px-3 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Confirmed</span></td>
+                                    <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button onclick="alert('MOCK: View Fulfillment Details')" class="text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200">Fulfill</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="flex justify-between items-center mb-4 border-b border-stone-200 dark:border-neutral-700 pb-2">
+                        <h3 class="text-xl font-semibold text-stone-800 dark:text-stone-50">Recent Listings</h3>
+                        <a href="CreateEditListing.html" class="text-sm font-semibold text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200">+ Create New Listing</a>
+                        </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-stone-200 dark:divide-neutral-700">
+                            <thead>
+                                <tr>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider">Product</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider">Stock</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider">Status</th>
+                                    <th class="px-3 py-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-neutral-800 divide-y divide-stone-100 dark:divide-neutral-700 text-sm">
+                                <tr>
+                                    <td class="px-3 py-4 whitespace-nowrap dark-text-default">Hand-Carved Walnut Bowl</td>
+                                    <td class="px-3 py-4 whitespace-nowrap font-medium dark-text-default">12</td>
+                                    <td class="px-3 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Published</span></td>
+                                    <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button onclick="alert('MOCK: Edit Listing')" class="text-stone-600 hover:text-amber-600 dark:text-stone-400 dark:hover:text-amber-200">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-3 py-4 whitespace-nowrap dark-text-default">Oak Cutting Board</td>
+                                    <td class="px-3 py-4 whitespace-nowrap font-medium text-red-700 dark:text-red-400">3 (Low Stock)</td>
+                                    <td class="px-3 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Published</span></td>
+                                    <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button onclick="alert('MOCK: Edit Listing')" class="text-stone-600 hover:text-amber-600 dark:text-stone-400 dark:hover:text-amber-200">Edit</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `,
+            listings: `
+                <h1 class="text-3xl font-extrabold text-stone-800 dark:text-stone-100 mb-6 border-l-4 border-amber-600 pl-3">Listings</h1>
+                <div class="dashboard-card">
+                    <div class="flex justify-between items-center mb-4 border-b border-stone-200 dark:border-neutral-700 pb-2">
+                        <h3 class="text-xl font-semibold text-stone-800 dark:text-stone-50">My Listings</h3>
+                        <button class="text-sm font-semibold text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200">+ Create New Listing</button>
+                    </div>
+                    <table class="min-w-full divide-y divide-stone-200 dark:divide-neutral-700">
+                        <thead>
+                            <tr>
+                                <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider">Product</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider">Stock</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-neutral-800 divide-y divide-stone-100 dark:divide-neutral-700 text-sm">
+                            <tr>
+                                <td class="px-3 py-4 whitespace-nowrap dark-text-default">Walnut Bowl</td>
+                                <td class="px-3 py-4 whitespace-nowrap">12</td>
+                                <td class="px-3 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Published</span></td>
+                            </tr>
+                            <tr>
+                                <td class="px-3 py-4 whitespace-nowrap dark-text-default">Oak Cutting Board</td>
+                                <td class="px-3 py-4 whitespace-nowrap text-red-600 dark:text-red-400">3 (Low)</td>
+                                <td class="px-3 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Published</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `,
+            inventory: `
+                <h1 class="text-3xl font-extrabold text-stone-800 dark:text-stone-100 mb-6 border-l-4 border-amber-600 pl-3">Inventory Management</h1>
+                <div class="dashboard-card">
+                    <h3 class="text-xl font-semibold text-stone-800 dark:text-stone-50 mb-4 border-b border-stone-200 dark:border-neutral-700 pb-2">Quick Inventory Update</h3>
+                    <form onsubmit="event.preventDefault(); mockInventoryUpdate();" class="space-y-4">
+                        <div>
+                            <label for="product_sku" class="block text-sm font-medium mb-1">Product SKU / Name</label>
+                            <input type="text" id="product_sku" placeholder="e.g., WLNT-BOWL-LG" required class="input-field">
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="stock_change" class="block text-sm font-medium mb-1">Stock Change (+ or -)</label>
+                                <input type="number" id="stock_change" value="1" required class="input-field">
+                            </div>
+                            <div>
+                                <label for="new_price" class="block text-sm font-medium mb-1">New Price (Optional)</label>
+                                <input type="number" id="new_price" placeholder="$" step="0.01" class="input-field">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-amber-600 text-white font-semibold py-2 rounded-lg hover:bg-amber-700 transition duration-150 shadow-md">
+                            Apply Inventory Change
+                        </button>
+                        <p id="update-status" class="text-center text-sm font-medium pt-2 hidden"></p>
+                    </form>
+                </div>
+            `,
+            orders: `
+                <h1 class="text-3xl font-extrabold text-stone-800 dark:text-stone-100 mb-6 border-l-4 border-amber-600 pl-3">Orders</h1>
+                <div class="dashboard-card">
+                    <h3 class="text-xl font-semibold mb-4 border-b border-stone-200 dark:border-neutral-700 pb-2">Pending Orders</h3>
+                    <p class="text-stone-600 dark:text-stone-300 text-sm">No new orders at this time.</p>
+                </div>
+            `,
+            payouts: `
+                <h1 class="text-3xl font-extrabold text-stone-800 dark:text-stone-100 mb-6 border-l-4 border-amber-600 pl-3">Payouts</h1>
+                <div class="dashboard-card text-center">
+                    <p class="text-stone-600 dark:text-stone-300">Your next payout is scheduled for <span class="font-semibold">Nov 15, 2025</span>.</p>
+                </div>
+            `,
+            reports: `
+                <h1 class="text-3xl font-extrabold text-stone-800 dark:text-stone-100 mb-6 border-l-4 border-amber-600 pl-3">Reports</h1>
+                <div class="dashboard-card text-center">
+                    <p class="text-stone-600 dark:text-stone-300">Reports feature coming soon.</p>
+                </div>
+            `
+        };
+
+        // Basic hash router + sidebar active state
+        function setActive(section) {
+            document.querySelectorAll('.sidebar-link').forEach(l => {
+                l.classList.toggle('active', l.dataset.section === section);
+            });
+        }
+        function render(section) {
+            const content = document.getElementById('dashboard-content');
+            const key = pages[section] ? section : 'dashboard';
+            content.innerHTML = pages[key];
+            setActive(key);
+            window.location.hash = key;
+            // Ensure theme icon is correct on initial load too
+            updateThemeIcon();
+        }
+
+        // Wire sidebar clicks
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                const section = link.dataset.section;
+                render(section);
+            });
+        });
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateThemeIcon();
+            const initial = (window.location.hash || '#dashboard').replace('#', '');
+            render(initial);
+        });
+    </script>
+</body>
+</html>

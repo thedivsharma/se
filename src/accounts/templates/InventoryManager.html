@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventory Manager - Woodman's World</title>
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark'); document.documentElement.classList.remove('light');
+        } else { document.documentElement.classList.remove('dark'); document.documentElement.classList.add('light'); }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        #app { background-color: #fafaf9; transition: background-color .3s; }
+        .dark #app { background-color: #171717; }
+        .icon-btn { transition: transform .2s, color .2s; }
+        .icon-btn:hover { transform: scale(1.05); color: #d97706; }
+        .badge { display: inline-flex; align-items:center; padding:.125rem .5rem; border-radius:9999px; font-size:.75rem; font-weight:600; }
+    </style>
+</head>
+<body id="app">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white dark:bg-neutral-800 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="HomePage.html" class="text-2xl font-bold text-stone-800 dark:text-stone-50 flex items-center">
+                    <span class="hidden sm:inline">Woodman's World</span>
+                    <span class="sm:hidden">Woodman's</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleTheme()" class="p-2 text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 icon-btn rounded-full">
+                        <svg id="theme-toggle-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"></svg>
+                    </button>
+                    <a href="LoginRegister.html" class="hidden md:flex items-center text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 icon-btn">
+                        <svg class="w-6 h-6 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        <span class="text-sm font-medium">Account / Login</span>
+                    </a>
+                    <a href="ShoppingCart.html" class="relative p-2 text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 icon-btn rounded-full">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                        <span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">4</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-3xl font-extrabold text-stone-800 dark:text-stone-100">Inventory Manager</h1>
+            <a href="ArtisanDashboard.html#inventory" class="text-sm text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400">Back to Dashboard</a>
+        </div>
+
+        <div class="bg-white dark:bg-neutral-800 rounded-xl shadow-lg p-4 md:p-6 space-y-4">
+            <div class="flex flex-wrap items-center gap-4">
+                <label class="inline-flex items-center gap-2">
+                    <input id="filter-low" type="checkbox" class="h-4 w-4">
+                    <span class="text-sm">Low Stock (≤ 3)</span>
+                </label>
+                <label class="inline-flex items-center gap-2">
+                    <input id="filter-out" type="checkbox" class="h-4 w-4">
+                    <span class="text-sm">Out of Stock</span>
+                </label>
+                <span id="summary" class="text-sm text-stone-600 dark:text-stone-300 ml-auto"></span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-stone-200 dark:divide-neutral-700">
+                    <thead class="bg-stone-100 dark:bg-neutral-900">
+                        <tr>
+                            <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider">Product</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider">Variant</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider">SKU</th>
+                            <th class="px-3 py-2 text-right text-xs font-medium uppercase tracking-wider">Stock</th>
+                            <th class="px-3 py-2 text-right text-xs font-medium uppercase tracking-wider">Price</th>
+                            <th class="px-3 py-2"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="inv-tbody" class="divide-y divide-stone-100 dark:divide-neutral-700 text-sm">
+                        <!-- rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-neutral-800 dark:bg-neutral-900 mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-stone-300 text-center text-sm">
+            <p>&copy; 2025 Woodman's World. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle
+        window.toggleTheme = function() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) { html.classList.remove('dark'); html.classList.add('light'); localStorage.theme='light'; }
+            else { html.classList.add('dark'); html.classList.remove('light'); localStorage.theme='dark'; }
+            updateThemeIcon();
+        }
+        window.updateThemeIcon = function() {
+            const ic = document.getElementById('theme-toggle-icon');
+            const isDark = document.documentElement.classList.contains('dark');
+            if (ic) ic.innerHTML = isDark
+                ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>'
+                : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>';
+        }
+
+        const PRODUCTS = [
+            { id: 'p1', name: 'Hand-Carved Walnut Bowl', basePrice: 59.99, variants: [
+                { size: 'S', color: 'Brown', sku: 'WLNTBWL-S-BRN', stock: 8, price: 59.99 },
+                { size: 'M', color: 'Brown', sku: 'WLNTBWL-M-BRN', stock: 2, price: 69.99 },
+            ]},
+            { id: 'p2', name: 'Oak Cutting Board', basePrice: 75.00, variants: [
+                { size: 'L', color: 'Natural', sku: 'OAKCB-L-NAT', stock: 0, price: 75.00 },
+            ]},
+        ];
+
+        function renderInventory() {
+            const low = document.getElementById('filter-low').checked;
+            const out = document.getElementById('filter-out').checked;
+
+            const rows = [];
+            let total = 0, lowCnt = 0, outCnt = 0;
+
+            PRODUCTS.forEach(p => {
+                p.variants.forEach(v => {
+                    total++;
+                    const isLow = v.stock <= 3 && v.stock > 0;
+                    const isOut = v.stock === 0;
+                    if ((low && !isLow) || (out && !isOut)) return;
+
+                    if (isLow) lowCnt++;
+                    if (isOut) outCnt++;
+
+                    rows.push(`
+                        <tr class="bg-white dark:bg-neutral-800">
+                            <td class="px-3 py-2">${p.name}</td>
+                            <td class="px-3 py-2">${v.size} / ${v.color} ${v.stock === 0 ? '<span class="badge bg-red-100 text-red-800 ml-2">Out</span>' : isLow ? '<span class="badge bg-yellow-100 text-yellow-800 ml-2">Low</span>' : ''}</td>
+                            <td class="px-3 py-2">${v.sku}</td>
+                            <td class="px-3 py-2 text-right">${v.stock}</td>
+                            <td class="px-3 py-2 text-right">$${v.price.toFixed(2)}</td>
+                            <td class="px-3 py-2 text-right">
+                                <a href="CreateEditListing.html?productId=${encodeURIComponent(p.id)}" class="text-stone-600 hover:text-amber-600 dark:text-stone-300 dark:hover:text-amber-200">Edit</a>
+                            </td>
+                        </tr>
+                    `);
+                });
+            });
+
+            document.getElementById('inv-tbody').innerHTML = rows.join('');
+            document.getElementById('summary').textContent = `Total variants: ${total} • Low: ${lowCnt} • Out: ${outCnt}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateThemeIcon();
+            document.getElementById('filter-low').addEventListener('change', renderInventory);
+            document.getElementById('filter-out').addEventListener('change', renderInventory);
+            renderInventory();
+        });
+    </script>
+</body>
+</html>

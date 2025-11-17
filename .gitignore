@@ -1,0 +1,8 @@
+venv/
+__pycache__/
+*.pyc
+db.sqlite3
+.env
+venv/
+__pycache__/
+*.sqlite3 # if you want to exclude DB
